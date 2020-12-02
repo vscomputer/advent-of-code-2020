@@ -78,36 +78,57 @@ namespace advent_of_code_2020
         [Test]
         public void ChecksPasswordPolicy_OpenFile_CorrectNumberOfEntries()
         {
-            var subject = new ChecksPasswordPolicy();
-            subject.GetNumberOfPassingEntriesInFile(
+            var subject = new GetsNumberOfPassingEntriesInFile(new ChecksPasswordPolicy());
+            subject.Get(
                 @"C:\Projects\Homework\advent-of-code-2020-puzzle-input\aoc-day02-test-input-1.txt").Should().Be(2);
         }
 
         [Test]
         public void ChecksPasswordPolicy_GetNumberOfPassingEntriesInFile_GetsRealNumberOfEntries()
         {
-            var subject = new ChecksPasswordPolicy();
-            subject.GetNumberOfPassingEntriesInFile(
+            var subject = new GetsNumberOfPassingEntriesInFile(new ChecksPasswordPolicy());
+            subject.Get(
                 @"C:\Projects\Homework\advent-of-code-2020-puzzle-input\aoc-day02-input.txt").Should().Be(467);
         }
         
         [Test]
         public void ChecksPasswordPolicyByPosition_OpenFile_CorrectNumberOfEntries()
         {
-            var subject = new ChecksPasswordPolicyByPosition();
-            subject.GetNumberOfPassingEntriesInFile(
+            var subject = new GetsNumberOfPassingEntriesInFile(new ChecksPasswordPolicyByPosition());
+            subject.Get(
                 @"C:\Projects\Homework\advent-of-code-2020-puzzle-input\aoc-day02-test-input-1.txt").Should().Be(1);
         }
 
         [Test]
         public void ChecksPasswordPolicyByPosition_GetNumberOfPassingEntriesInFile_GetsRealNumberOfEntries()
         {
-            var subject = new ChecksPasswordPolicyByPosition();
-            subject.GetNumberOfPassingEntriesInFile(
-                @"C:\Projects\Homework\advent-of-code-2020-puzzle-input\aoc-day02-input.txt").Should().Be(467);
+            var subject = new GetsNumberOfPassingEntriesInFile(new ChecksPasswordPolicyByPosition());
+            subject.Get(
+                @"C:\Projects\Homework\advent-of-code-2020-puzzle-input\aoc-day02-input.txt").Should().Be(441);
         }
     }
 
+    public class GetsNumberOfPassingEntriesInFile
+    {
+        private readonly IChecksPasswordPolicy _checksPasswordPolicy;
+
+        public GetsNumberOfPassingEntriesInFile(IChecksPasswordPolicy checksPasswordPolicy)
+        {
+            _checksPasswordPolicy = checksPasswordPolicy;
+        }
+
+        public int Get(string filename)
+        {
+            var policies = File.ReadAllLines(filename).ToList();
+            return policies.Count(policy => _checksPasswordPolicy.CheckPassword(policy));
+        }
+    }
+
+    public interface IChecksPasswordPolicy
+    {
+        bool CheckPassword(string password);
+    }
+    
     public class ChecksPasswordPolicyByPosition : IChecksPasswordPolicy
     {
         public bool CheckPassword(string policy)
@@ -132,27 +153,8 @@ namespace advent_of_code_2020
             return false;
         }
         
-        public int GetNumberOfPassingEntriesInFile(string filename)
-        {
-            var policies = File.ReadAllLines(filename).ToList();
-            int numberOfPassingPasswords = 0;
-            foreach (var policy in policies)
-            {
-                var checksPasswordPolicy = new ChecksPasswordPolicyByPosition();
-                if (checksPasswordPolicy.CheckPassword(policy))
-                {
-                    numberOfPassingPasswords++;
-                }
-            }
-
-            return numberOfPassingPasswords;
-        }
     }
-
-    public interface IChecksPasswordPolicy
-    {
-        bool CheckPassword(string password);
-    }
+    
     public class ChecksPasswordPolicy : IChecksPasswordPolicy
     {
         public bool CheckPassword(string password)
@@ -162,22 +164,6 @@ namespace advent_of_code_2020
                 .GetPassword()
                 .Count(c => c == parsesPasswordPolicy.GetCharacter().ToCharArray()[0]);
             return charCount >= parsesPasswordPolicy.GetMinimum() && charCount <= parsesPasswordPolicy.GetMaximum();
-        }
-
-        public int GetNumberOfPassingEntriesInFile(string filename)
-        {
-            var policies = File.ReadAllLines(filename).ToList();
-            int numberOfPassingPasswords = 0;
-            foreach (var policy in policies)
-            {
-                var checksPasswordPolicy = new ChecksPasswordPolicy();
-                if (checksPasswordPolicy.CheckPassword(policy))
-                {
-                    numberOfPassingPasswords++;
-                }
-            }
-
-            return numberOfPassingPasswords;
         }
     }
 
