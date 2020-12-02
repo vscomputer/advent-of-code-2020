@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
@@ -55,23 +54,15 @@ namespace advent_of_code_2020
     {
         public int FindCombinationInFile(string filename, int expected)
         {
-            int x = 0;
-            int y = 0;
-            int z = 0;
             var entries = File.ReadAllLines(filename).ToList();
-            for (int i = 0; i < entries.Count; i++)
+            var parsedEntries = entries.Select(int.Parse).ToList();
+            foreach (var i in parsedEntries)
             {
-                for (int j = 0; j < entries.Count; j++)
+                foreach (var j in parsedEntries)
                 {
-                    for (int k = 0; k < entries.Count; k++)
+                    foreach (var k in parsedEntries.Where(k => i + j + k == expected))
                     {
-                        if (int.Parse(entries[i]) + int.Parse(entries[j]) + int.Parse(entries[k]) == expected)
-                        {
-                            x = int.Parse(entries[i]);
-                            y = int.Parse(entries[j]);
-                            z = int.Parse(entries[k]);
-                            return x * y * z;
-                        }
+                        return i * j * k;
                     }
                 }
             }
