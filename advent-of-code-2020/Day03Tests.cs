@@ -47,7 +47,7 @@ namespace advent_of_code_2020
         }
 
         [Test]
-        public void ChecksForTrees_TestFile_FindsTreesandSpacesInSecondLine()
+        public void ChecksForTrees_TestFile_FindsTreesAndSpacesInSecondLine()
         {
             var subject = new ChecksForTrees();
             var getsRows = new GetsRowsFromFile();
@@ -92,29 +92,75 @@ namespace advent_of_code_2020
         }
         
         [Test]
-        public void ChecksForTrees_RealFile_TripDownRowsGetsTheRightNumberOfTrees()
+        public void SlopeTrip_RealFile_TripDownRowsGetsTheRightNumberOfTrees()
         {
-            var subject = new ChecksForTrees();
+            var subject = new SlopeTrip();
             var getsRows = new GetsRowsFromFile();
             var rows = getsRows.Get(realFile);
+            
+            subject.GetTreesHit(rows, 3, 1).Should().Be(276);
+        }
+
+        [Test]
+        public void SlopeTrip_TestFile_TripDownVariousRoutesMultipliesToCorrectNumber()
+        {
+            var subject = new SlopeTrip();
+            var getsRows = new GetsRowsFromFile();
+            var rows = getsRows.Get(testFile);
+            var treesHitOnTrips = new List<int>
+            {
+                subject.GetTreesHit(rows, 1, 1),
+                subject.GetTreesHit(rows, 3, 1),
+                subject.GetTreesHit(rows, 5, 1),
+                subject.GetTreesHit(rows, 7, 1),
+                subject.GetTreesHit(rows, 1, 2)
+            };
+            
+            treesHitOnTrips.Aggregate((a, x) => a * x).Should().Be(336);
+        }
+        
+        [Test]
+        public void SlopeTrip_RealFile_TripDownVariousRoutesMultipliesToCorrectNumber()
+        {
+            var subject = new SlopeTrip();
+            var getsRows = new GetsRowsFromFile();
+            var rows = getsRows.Get(realFile);
+            var treesHitOnTrips = new List<decimal>
+            {
+                subject.GetTreesHit(rows, 1, 1),
+                subject.GetTreesHit(rows, 3, 1),
+                subject.GetTreesHit(rows, 5, 1),
+                subject.GetTreesHit(rows, 7, 1),
+                subject.GetTreesHit(rows, 1, 2)
+            };
+            
+            treesHitOnTrips.Aggregate((a, x) => a * x).Should().Be(7812180000);
+        }
+        
+    }
+
+    public class SlopeTrip
+    {
+        public int GetTreesHit(List<Row> rows, int rightVel, int downVel)
+        {
+            var checksForTrees = new ChecksForTrees();
             int treesHit = 0;
             int currentRow = 1;
             int currentColumn = 1;
             while (currentRow <= rows.Count)
             {
-                if (subject.Check(rows, currentRow, currentColumn))
+                if (checksForTrees.Check(rows, currentRow, currentColumn))
                 {
                     treesHit++;
                 }
-
-                currentRow++;
-                currentColumn += 3;
+                currentRow += downVel;
+                currentColumn += rightVel;
             }
 
-            treesHit.Should().Be(276);
+            return treesHit;
         }
     }
-    
+
     public class Row
     {
         private readonly List<bool> _treePositions;
